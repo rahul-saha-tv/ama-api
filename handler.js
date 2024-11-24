@@ -2,7 +2,7 @@ const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 const {
 	QueryCommand,
-	PutCommand,
+	PutItemCommand,
 } = require("@aws-sdk/client-dynamodb");
 
 const express = require("express");
@@ -11,6 +11,7 @@ const serverless = require("serverless-http");
 const app = express();
 
 const MESSAGES_TABLE = 'messages';
+
 const client = new DynamoDBClient({
 	region: "localhost",
 	endpoint: "http://0.0.0.0:8000",
@@ -22,17 +23,24 @@ const client = new DynamoDBClient({
 
 app.use(express.json());
 
-app.get("/messages", async (req, res) => {
+app.get("/messages", async (_, res) => {
 	try {
-		const res = await client.send(new QueryCommand({
+		const queryRes = await client.send(new QueryCommand({
 			TableName: MESSAGES_TABLE,
-			ExpressionAttributeValues: {
-				":topic": { S: "masterclass" },
-			},
+			ExpressionAttributeValues: marshall({
+				":topic": "masterclass"
+			}),
 			KeyConditionExpression: "topic = :topic",
 			ScanIndexForward: false
 		}));
-		return res.status(200).json(res.Items.map(unmarshall));
+		console.log("query successful")
+		return res.status(200).json(queryRes.Items.map(unmarshall).map((item) => {
+			return {
+				"email": item.email,
+				"message": item.message,
+				"ts": item.ts
+			}
+		}));
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({ error: "Could not retrieve user" });
@@ -48,11 +56,11 @@ app.post("/messages", async (req, res) => {
 	}
 
 	try {
-		const command = new PutCommand({
+		const command = new PutItemCommand({
 			TableName: MESSAGES_TABLE,
 			Item: marshall({
 				topic: 'masterclass',
-				ts: Math.floor(Date.now() / 1000),
+				ts: Date.now(),
 				email: email,
 				message, message
 			}),
@@ -65,7 +73,7 @@ app.post("/messages", async (req, res) => {
 	}
 });
 
-app.use((req, res, next) => {
+app.use((req, res) => {
 	return res.status(404).json({
 		error: "Not Found",
 	});

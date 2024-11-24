@@ -1,12 +1,7 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: rahulorg
+org: techverito
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: ama
-
-stages:
-  default:
-    params:
-      tableName: "users-table-${sls:stage}"
 
 provider:
   name: aws
@@ -23,15 +18,23 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [UsersTable, Arn]
-  environment:
-    USERS_TABLE: ${param:tableName}
+            - Fn::GetAtt: [messages, Arn]
+  stackName: masterclass
+  region: ap-south-1
 
 functions:
   api:
     handler: handler.handler
     events:
-      - httpApi: "*"
+      - httpApi:
+          path: /messages
+          method: post
+      - httpApi:
+          path: /messages
+          method: get
+
+plugins:
+  - serverless-offline
 
 resources:
   Resources:
@@ -49,4 +52,4 @@ resources:
           - AttributeName: ts
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${param:tableName}
+        TableName: messages
