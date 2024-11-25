@@ -6,6 +6,8 @@ service: ama
 provider:
   name: aws
   runtime: nodejs20.x
+  httpApi:
+    cors: true
   iam:
     role:
       statements:
@@ -30,11 +32,9 @@ functions:
       - httpApi:
           path: /messages
           method: post
-          cors: true
       - httpApi:
           path: /messages
           method: get
-          cors: true
 plugins:
   - serverless-offline
 
