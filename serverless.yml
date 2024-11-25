@@ -30,10 +30,11 @@ functions:
       - httpApi:
           path: /messages
           method: post
+          cors: true
       - httpApi:
           path: /messages
           method: get
-
+          cors: true
 plugins:
   - serverless-offline
 
