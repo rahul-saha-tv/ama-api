@@ -12,14 +12,7 @@ const app = express();
 
 const MESSAGES_TABLE = 'messages';
 
-const client = new DynamoDBClient({
-	region: "localhost",
-	endpoint: "http://0.0.0.0:8000",
-	credentials: {
-		accessKeyId: "MockAccessKeyId",
-		secretAccessKey: "MockSecretAccessKey",
-	},
-});
+const client = new DynamoDBClient();
 
 app.use(express.json());
 

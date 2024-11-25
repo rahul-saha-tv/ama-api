@@ -18,7 +18,7 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [messages, Arn]
+            - Fn::GetAtt: [MessageTable, Arn]
   stackName: masterclass
   region: ap-south-1
 
