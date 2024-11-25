@@ -12,7 +12,14 @@ const app = express();
 
 const MESSAGES_TABLE = 'messages';
 
-const client = new DynamoDBClient();
+const client = new DynamoDBClient({
+	region: "localhost",
+	endpoint: "http://0.0.0.0:8000",
+	credentials: {
+		accessKeyId: "MockAccessKeyId",
+		secretAccessKey: "MockSecretAccessKey",
+	},
+});
 
 app.use(express.json());
 
@@ -24,7 +31,8 @@ app.get("/messages", async (_, res) => {
 				":topic": "masterclass"
 			}),
 			KeyConditionExpression: "topic = :topic",
-			ScanIndexForward: false
+			ScanIndexForward: false,
+			Limit: 50
 		}));
 		console.log("query successful")
 		return res.status(200).json(queryRes.Items.map(unmarshall).map((item) => {
