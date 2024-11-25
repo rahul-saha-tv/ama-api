@@ -25,7 +25,7 @@ provider:
 functions:
   api:
     memorySize: 128
-    reservedConcurrency: 10
+    reservedConcurrency: 50
     handler: handler.handler
     events:
       - httpApi:
